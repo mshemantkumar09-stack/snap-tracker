@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1f4d">
+<title>SNAP 2026 Tracker</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--navy:#0b1f4d;--cobalt:#1a4fd6;--sky:#e8eefc;--bg:#f4f6fb;--card:#fff;--ink:#14213d;--mute:#5d6b8a;--line:#dbe2f2;--ok:#17874a;--warn:#c27a00;--bad:#c0392b;--q:#1a4fd6;--r:#7a3fd1;--e:#0e8a7d}
+@media(prefers-color-scheme:dark){:root{--bg:#0a1228;--card:#111c3a;--ink:#e8eefc;--mute:#9aa8c9;--line:#22305a;--sky:#16264f;--q:#6f9bff;--r:#b58cff;--e:#4fd1c0}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;padding-bottom:84px}
+header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px}
+.wrap{max-width:720px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font-size:19px;font-weight:700}
+.sub{font-size:13px;opacity:.75}
+.cd{text-align:right;font-size:12px;opacity:.9}.cd b{display:block;font-size:26px;line-height:1}
+.bar{height:8px;background:rgba(255,255,255,.18);border-radius:9px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;background:#6fa0ff;width:0;transition:width .3s}
+.stats{display:flex;gap:16px;font-size:12px;margin-top:6px;opacity:.85}
+main{max-width:720px;margin:0 auto;padding:14px}
+.nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.nav button,.btn{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 13px;font-size:14px;cursor:pointer}
+.nav .d{flex:1;text-align:center;font-weight:600}
+.nav .d small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+.btn.p{background:var(--cobalt);color:#fff;border-color:var(--cobalt)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.card h2{font-size:14px;padding:10px 14px;display:flex;justify-content:space-between;border-left:5px solid var(--c,var(--cobalt));background:var(--sky)}
+.card h2 span{font-weight:400;color:var(--mute);font-size:12px}
+.t{display:flex;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer;align-items:flex-start}
+.t:first-of-type{border-top:0}
+.t input{width:22px;height:22px;accent-color:var(--cobalt);flex:none;margin-top:1px}
+.t div{flex:1;font-size:15px}.t small{display:block;color:var(--mute);font-size:12px}
+.t.done div{text-decoration:line-through;opacity:.5}
+.tag{display:inline-block;font-size:12px;padding:3px 9px;border-radius:20px;background:var(--sky);color:var(--cobalt);margin:0 6px 8px 0}
+.banner{padding:12px 14px;border-radius:12px;margin-bottom:12px;font-size:14px;background:var(--sky);border:1px solid var(--line)}
+.banner.warn{background:#fff4dc;color:#7a4b00;border-color:#f0d08a}
+@media(prefers-color-scheme:dark){.banner.warn{background:#3a2c0a;color:#ffd98a;border-color:#6b5217}}
+.mock{border-left:5px solid var(--warn)}
+details summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:14px}
+.pend{padding:8px 14px;border-top:1px solid var(--line);font-size:13px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.pend input{width:18px;height:18px;accent-color:var(--cobalt);margin-top:2px}
+.pend b{color:var(--mute);font-weight:500;min-width:52px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 6px;text-align:center;border-top:1px solid var(--line)}
+th{font-size:12px;color:var(--mute);font-weight:600}
+td:first-child,th:first-child{text-align:left;padding-left:14px}
+td input[type=number],td input[type=text]{width:58px;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-size:13px;text-align:center}
+td input[type=text]{width:76px}
+td input[type=checkbox]{width:19px;height:19px;accent-color:var(--cobalt)}
+.good{color:var(--ok);font-weight:700}.mid{color:var(--warn);font-weight:700}.low{color:var(--bad);font-weight:700}
+.grp{padding:10px 14px;font-weight:700;font-size:13px;background:var(--sky);border-top:1px solid var(--line)}
+.dayrow{display:flex;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-size:13px;cursor:pointer;align-items:center}
+.dayrow.cur{background:var(--sky)}
+.dayrow b{min-width:58px}.dayrow span{flex:1;color:var(--mute)}.dayrow em{font-style:normal;font-size:12px}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.tabs button{flex:1;padding:13px 4px;background:none;border:0;color:var(--mute);font-size:13px;cursor:pointer}
+nav.tabs button.on{color:var(--cobalt);font-weight:700;box-shadow:inset 0 3px 0 var(--cobalt)}
+.foot{text-align:center;color:var(--mute);font-size:12px;margin-top:18px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cobalt);outline-offset:2px}
+.ck{padding:10px 14px;border-top:1px solid var(--line);font-size:14px;display:flex;gap:8px;align-items:flex-start}
+.ck .st{margin-left:auto;font-size:12px;white-space:nowrap}.ck small{display:block;color:var(--mute);font-size:12px}
+.ck.now{background:var(--sky)}.pill{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--cobalt);color:#fff;margin-left:6px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <div class="top"><div><h1>SNAP 2026 · 99 percentile</h1><div class="sub" id="phase"></div></div>
+ <div class="cd"><b id="cd">–</b>days to Test 1</div></div>
+ <div class="bar"><i id="pb"></i></div>
+ <div class="stats"><span id="ps"></span><span id="st"></span></div>
+</div></header>
+<main id="app"></main>
+<nav class="tabs"><button data-v="today" class="on">Today</button><button data-v="plan">Plan</button><button data-v="syl">Syllabus</button><button data-v="mock">Mocks</button></nav>
+
+<script>
+const START="2026-10-08",T1="2026-12-13";
+/* n = normal day [quant, reasoning, english] | r = review | m = mock no. | x = custom tasks | t = live test */
+const D=[
+["10-08","n","Percentages","Series, coding-decoding","RC basics + 15 words"],
+["10-09","n","Profit, loss, discount","Blood relations","Grammar I (tense, S-V)"],
+["10-10","n","Ratio & proportion","Direction sense","Grammar II (articles, preps)"],
+["10-11","r","Week 1"],
+["10-12","n","Averages & mixtures","Ranking & order","Error spotting"],
+["10-13","n","TSD basics","Linear seating","Sentence correction"],
+["10-14","n","TSD: trains, boats, races","Circular seating","Fill in the blanks"],
+["10-15","n","Time & work, pipes","Mixed arrangements","Synonyms & antonyms"],
+["10-16","n","SI & CI","Puzzles I (grids)","Idioms & phrases"],
+["10-17","n","Number system I","Puzzles II (scheduling)","One-word substitution"],
+["10-18","r","Week 2"],
+["10-19","n","Number system II (HCF/LCM)","Syllogisms","Para jumbles"],
+["10-20","n","Linear & quadratic equations","Venn, statement-conclusion","Para completion"],
+["10-21","n","Inequalities & functions","Clocks & calendars","Odd sentence out"],
+["10-22","n","Progressions (AP/GP)","Binary logic, truth-liar","Verbal analogies"],
+["10-23","n","Logs, surds, indices","Critical reasoning I","RC: economy/society"],
+["10-24","n","Geometry I (lines, triangles)","Critical reasoning II","RC: science/tech"],
+["10-25","r","Week 3"],
+["10-26","n","Geometry II (circles, polygons)","Data arrangement","RC: abstract/philosophy"],
+["10-27","n","Mensuration 2D/3D","Sequencing","RC speed drill"],
+["10-28","n","Coordinate geometry basics","Games & tournaments","Sentence completion"],
+["10-29","n","P&C I","Cubes, dice, visual basics","Cloze test"],
+["10-30","n","P&C II","Verbal logic (analogy, odd-one)","Confused words & usage"],
+["10-31","n","Probability","Mixed LR set (timed)","Mixed English set"],
+["11-01","m",1],
+["11-02","n","Sets, Venn, modern maths","Mixed LR set (timed)","Mixed English set"],
+["11-03","n","DI: tables, bar, line","Logical data sufficiency","Mixed English set"],
+["11-04","n","DI: pie, caselets + DS","Mixed LR + review","Mixed + vocab revision"],
+["11-05","n","Arithmetic mixed (20Q / 25 min)","Seating mixed set","RC x3 timed"],
+["11-06","n","Arithmetic mixed II","Puzzles set (grids)","Grammar set (30Q)"],
+["11-07","n","Algebra mixed set","Syllogism / Venn / logic set","Vocab 40 words + set"],
+["11-08","m",2],
+["11-09","n","Geometry + mensuration set","Arrangement-heavy set","Para jumbles, odd-one sets"],
+["11-10","n","P&C, probability, number system set","Critical reasoning set","RC x3 (abstract)"],
+["11-11","n","DI: 4 sets timed","Mixed 25Q in 30 min","Cloze + fill-in set"],
+["11-12","n","DI + DS sets","Games, binary logic","Idioms + vocab revision"],
+["11-13","n","Mixed 20Q in 25 min","Mixed 25Q in 28 min","Mixed 15Q in 12 min"],
+["11-14","n","Weak-topic repair","Weak-type repair","RC x4 timed"],
+["11-15","m",3],
+["11-16","n","Mixed 20Q in 22 min","Mixed 25Q in 26 min","Mixed 15Q in 10 min"],
+["11-17","n","DI speed + calc tricks","Hard puzzles set","Grammar + sentence correction"],
+["11-18","n","Weak-topic repair","Weak-type repair","Vocab flashcards"],
+["11-19","n","Mixed 20Q in 22 min","Mixed 25Q in 25 min","Mixed 15Q in 10 min"],
+["11-20","n","Shortcuts revision","Critical reasoning + verbal","RC x3 timed"],
+["11-21","n","Weak-topic repair","Weak-type repair","Mixed English set"],
+["11-22","m",4],
+["11-23","n","Mixed 20Q in 20 min","Mixed 25Q in 25 min","Mixed 15Q in 10 min"],
+["11-24","n","DI + DS sets","Puzzle speed set","Vocab revision"],
+["11-25","n","Formula sheet revision","Mixed LR revision","Mixed English set"],
+["11-26","n","QA/DI sectional 20Q / 20 min","LR sectional 25Q / 22 min","English 15Q / 10 min"],
+["11-27","x","Analyse sectionals","Find your top-3 weak topics","Fix all three (concept + 20 Qs each)"],
+["11-28","n","Weak-topic repair","Weak-type repair","RC x3 + vocab"],
+["11-29","m",5],
+["11-30","x","Error-log fixes","Redo every wrong question from M1-M5"],
+["12-01","m",6],
+["12-02","n","Re-attempt missed QA","Re-attempt missed LR","RC x3 + vocab"],
+["12-03","m",7],
+["12-04","n","Formula + shortcut review","Puzzle speed set","Vocab + grammar recap"],
+["12-05","m",8],
+["12-06","r","Sectionals"],
+["12-07","m",9],
+["12-08","n","Weak-topic repair","Weak-type repair","RC x3 timed"],
+["12-09","m",10],
+["12-10","n","Light DI + DS set","Light puzzle set","Vocab + idioms"],
+["12-11","m",11],
+["12-12","x","Light revision only","Keep admit card, photo ID and route ready","Sleep early"],
+["12-13","t","Test 1","Real attempt. Order: English → Reasoning → Quant/DI. Skip anything over 90 sec on first pass."],
+["12-14","x","Analyse Test 1 (90 min)","List 2-3 weak areas"],
+["12-15","x","Patch weak area 1","Patch weak area 2"],
+["12-16","m","Patch mock"],
+["12-17","x","Patch weak area 3","Revise error log","Decide on Test 2 (take it if Test 1 < 44 net)"],
+["12-18","x","Light revision","Rest well"],
+["12-19","t","Test 2","Only if Test 1 score is below 44 net."],
+["12-20","x","Analyse Test 2","Patch weak areas"],
+["12-21","x","Patch weak areas","Error log revision"],
+["12-22","m","Final mock 1"],
+["12-23","x","Patch weak areas","Formula + vocab revision"],
+["12-24","m","Final mock 2"],
+["12-25","x","Light revision only","Decide on Test 3"],
+["12-26","t","Test 3","Optional, last chance. Best score counts."]
+];
+const MOCKS=[["M1","11-01"],["M2","11-08"],["M3","11-15"],["M4","11-22"],["M5","11-29"],["M6","12-01"],["M7","12-03"],["M8","12-05"],["M9","12-07"],["M10","12-09"],["M11","12-11"]];
+const MT=[0,0,36,36,36,40,40,40,40,42,42,42];
+const SYL={
+"Quant, DI & Data Sufficiency":[["Percentages, profit & loss, discount","H","8-9 Oct"],["Ratio, averages, mixtures & alligation","H","10-12 Oct"],["Time-speed-distance, time & work, pipes","H","13-15 Oct"],["Simple & compound interest","M","16 Oct"],["Number system, HCF/LCM, remainders","M","17-19 Oct"],["Equations, inequalities, functions","H","20-21 Oct"],["Progressions, logs, surds, indices","M","22-23 Oct"],["Geometry, mensuration, coordinate geometry","M","24-28 Oct"],["Permutation & combination, probability","H","29-31 Oct"],["Sets, Venn, modern maths","M","2 Nov"],["DI: tables, bar, line, pie","H","3 Nov"],["DI caselets + data sufficiency","H","4 Nov"]],
+"Analytical & Logical Reasoning":[["Series, coding-decoding, blood relations, direction, ranking","M","8-12 Oct"],["Linear, circular & mixed seating","H","13-15 Oct"],["Puzzles: grids and scheduling","H","16-17 Oct"],["Syllogisms, Venn, statement-conclusion","H","19-20 Oct"],["Clocks, calendars, binary logic, truth-liar","M","21-22 Oct"],["Critical reasoning","H","23-24 Oct"],["Data arrangement, sequencing, games & tournaments","H","26-28 Oct"],["Cubes, dice, visual basics, verbal logic","M","29-30 Oct"],["Mixed timed sets + logical data sufficiency","H","31 Oct-4 Nov"]],
+"General English":[["Reading comprehension: all genres + speed (daily)","H","8-27 Oct"],["Grammar: tenses, S-V agreement, articles, prepositions","M","9-10 Oct"],["Error spotting & sentence correction","M","12-13 Oct"],["Fill in the blanks, sentence completion, cloze","M","14-29 Oct"],["Vocabulary: synonyms, antonyms, idioms, one-word","H","15-30 Oct"],["Para jumbles, para completion, odd sentence out","H","19-21 Oct"],["Verbal analogies","M","22 Oct"],["Mixed English sets (timed)","H","31 Oct-4 Nov"]]};
+const COLS=["Concept","Practice","Sectional","Revised"];
+
+const $=s=>document.querySelector(s);
+const iso=d=>{const z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())};
+const key=md=>"2026-"+md;
+const S=JSON.parse(localStorage.getItem("snap26")||"{}");
+const save=()=>localStorage.setItem("snap26",JSON.stringify(S));
+S.c=S.c||{};S.s=S.s||{};S.m=S.m||{};
+const real=iso(new Date());
+let view="today",sel=real<START?START:(real>"2026-12-26"?"2026-12-26":real);
+const fmt=(i,o)=>new Date(i+"T00:00:00").toLocaleDateString("en-IN",o||{weekday:"short",day:"numeric",month:"short"});
+const dayOf=i=>D.find(d=>key(d[0])===i);
+const diff=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+
+/* build tasks for a date */
+function tasks(i){
+ const d=dayOf(i);if(!d)return null;const t=d[1],ph=phase(i);
+ const G=[];
+ if(t==="n"){
+  const early=ph===1;
+  G.push({g:"Quant / DI",c:"var(--q)",time:"75 min",items:early?[[`Learn: ${d[2]}`,"20 min: theory + solved examples"],[`Practice: 25-30 questions`,"Aim for 80%+ accuracy. Note every wrong or slow one"]]:[[d[2],"Timed set, accuracy first"]]});
+  G.push({g:"Reasoning",c:"var(--r)",time:"60 min",items:[[d[3],early?"Learn the pattern, then solve 15-20 sets":"Timed set, skip anything over 90 sec"]]});
+  G.push({g:"English",c:"var(--e)",time:"45 min",items:early?[[d[4],"Topic + practice questions"],["2 RC passages","Note unknown words and the author's tone"],["15 new words","Revise yesterday's 15 first"]]:[[d[4],""]]});
+  G.push({g:"Error log",c:"var(--warn)",time:"15 min",items:[["Log every wrong, guessed or slow question","Topic, why you missed it, fix"]]});
+ }else if(t==="r"){
+  G.push({g:"Sunday review",c:"var(--warn)",time:"",items:[["Sectional 1: Quant/DI (20 min)",""],["Sectional 2: Reasoning (20 min)",""],["Sectional 3: English (20 min)",""],["Analyse + update error log","Re-read the full error log"],["Tick the syllabus tracker for topics completed this week",""]]});
+ }else if(t==="m"){
+  G.push({g:typeof d[2]==="number"?`Full Mock ${d[2]}`:d[2],c:"var(--warn)",time:"",mock:typeof d[2]==="number"?d[2]:null,items:[["Take the mock (60 min)","Exam order: English → Reasoning → Quant/DI"],["Analyse it (90 min)","An unanalysed mock is wasted"],["Update error log + enter score in Mocks tab",""]]});
+ }else if(t==="t"){
+  G.push({g:d[2],c:"var(--warn)",time:"",items:[[d[2]+" day",d[3]],["Analyse the paper the next day",""]]});
+ }else{
+  G.push({g:"Today",c:"var(--cobalt)",time:"",items:d.slice(2).map(x=>[x,""])});
+ }
+ return G;
+}
+function phase(i){return i<"2026-11-05"?1:i<"2026-11-26"?2:i<"2026-12-13"?3:4}
+const PN=["","Phase 1 · Foundation","Phase 2 · Build speed","Phase 3 · Mock sprint","Phase 4 · Live tests"];
+const id=(date,g,k)=>date+"|"+g+"|"+k;
+function allIds(i){const g=tasks(i);if(!g)return[];const o=[];g.forEach(x=>x.items.forEach((_,k)=>o.push(id(i,x.g,k))));return o}
+
+function head(){
+ const days=D.map(d=>key(d[0]));
+ let tot=0,done=0;days.forEach(i=>allIds(i).forEach(x=>{tot++;if(S.c[x])done++}));
+ const p=tot?Math.round(done/tot*100):0;$("#pb").style.width=p+"%";
+ $("#ps").textContent=p+"% of plan done";
+ const cd=diff(real,T1);$("#cd").textContent=cd>0?cd:(cd===0?"Today!":"–");
+ $("#phase").textContent=real<START?"Starts "+fmt(START):PN[phase(real>"2026-12-26"?"2026-12-26":real)];
+ // streak: consecutive past days (incl. today if done) fully done
+ let s=0,c=new Date(real+"T00:00:00");
+ if(!allIds(real).length||!allIds(real).every(x=>S.c[x]))c.setDate(c.getDate()-1);
+ for(;;){const i=iso(c);const a=allIds(i);if(!a.length||!a.every(x=>S.c[x]))break;s++;c.setDate(c.getDate()-1)}
+ $("#st").textContent="Streak: "+s+" day"+(s===1?"":"s");
+}
+
+
+const MO={Oct:"10",Nov:"11"};
+function win(w){const p=w.split("-").map(x=>x.trim().split(" "));const em=p[p.length-1][1];const f=a=>"2026-"+MO[a[1]||em]+"-"+a[0].padStart(2,"0");return[f(p[0]),f(p[p.length-1])]}
+function checkpoint(i){
+ if(i>"2026-11-04")return `<div class="banner"><b>Syllabus complete.</b> Now: timed sets, mocks and error-log repair.</div>`;
+ let due=0,behind=0,body="",fin="";
+ for(const [sec,rows] of Object.entries(SYL)){
+  let part="";
+  rows.forEach((r,ri)=>{const [a,b]=win(r[2]);if(a>i)return;
+   const done=b<=i,today=b===i;
+   const c=S.s[sec+ri+0],p=S.s[sec+ri+1];
+   if(done){due++;if(!(c&&p))behind++}
+   part+=`<div class="ck ${today?"now":""}"><div>${r[0]}${today?'<span class="pill">finish today</span>':""}<small>${r[2]} · ${done?"should be done":"in progress"}</small></div><span class="st ${done?(c&&p?"good":"mid"):""}">${done?(c&&p?"Done":"Tick in Syllabus"):"→"}</span></div>`});
+  if(part)body+=`<div class="grp">${sec}</div>`+part;
+ }
+ return `<section class="card"><h2 style="--c:var(--cobalt)">Checkpoint: by end of ${fmt(i,{day:"numeric",month:"short"})}<span>${due} topics due${behind?` · ${behind} not ticked`:""}</span></h2>${body||'<div class="ck">Nothing due yet.</div>'}</section>`;
+}
+function today(){
+ const G=tasks(sel);let h="";
+ const prev=D.some(d=>key(d[0])<sel),next=D.some(d=>key(d[0])>sel);
+ const n=Math.max(0,diff(START,sel))+1;
+ h+=`<div class="nav"><button id="pv" ${prev?"":"disabled"} aria-label="Previous day">‹</button><div class="d">${fmt(sel,{weekday:"long",day:"numeric",month:"long"})}<small>${G?PN[phase(sel)]+" · Day "+n:""}${sel===real?" · Today":""}</small></div><button id="nx" ${next?"":"disabled"} aria-label="Next day">›</button></div>`;
+ if(sel!==real&&real>=START&&real<="2026-12-26")h+=`<button class="btn p" id="gt" style="width:100%;margin-bottom:12px">Jump to today</button>`;
+ if(real<START&&sel===START)h+=`<div class="banner">Plan starts on ${fmt(START)}. Showing Day 1.</div>`;
+ if(!G){h+=`<div class="banner">No tasks on this date.</div>`}
+ else{
+  const ids=allIds(sel),dn=ids.filter(x=>S.c[x]).length;
+  if(ids.length&&dn===ids.length)h+=`<div class="banner" style="background:#dcf5e7;color:#0d5b32;border-color:#9fd9b8">All done for the day. Good work.</div>`;
+  G.forEach(g=>{
+   h+=`<section class="card ${g.mock?"mock":""}"><h2 style="--c:${g.c}">${g.g}<span>${g.time}</span></h2>`;
+   g.items.forEach((it,k)=>{const x=id(sel,g.g,k);h+=`<label class="t ${S.c[x]?"done":""}"><input type="checkbox" data-id="${x}" ${S.c[x]?"checked":""}><div>${it[0]}${it[1]?`<small>${it[1]}</small>`:""}</div></label>`});
+   if(g.mock)h+=`<div style="padding:10px 14px;border-top:1px solid var(--line);font-size:13px"><button class="btn" data-go="mock">Enter score</button></div>`;
+   h+=`</section>`;
+  });
+  h+=checkpoint(sel);
+  if(sel===START||sel===real)h+=`<div class="banner"><b>Rules:</b> accuracy first, speed second. Skip any question eating over 90 sec. 0.25 negative marking.</div>`;
+ }
+ // pending
+ const pend=[];D.forEach(d=>{const i=key(d[0]);if(i<real&&i<=sel||i<sel){allIds(i).forEach(x=>{if(!S.c[x])pend.push([i,x])})}});
+ const pn=pend.filter(p=>p[0]<real);
+ if(pn.length&&real>=START){
+  h+=`<details class="card"><summary>Pending from earlier days (${pn.length})</summary>`;
+  pn.slice(-40).reverse().forEach(([i,x])=>{const [,g,k]=x.split("|");const gg=tasks(i).find(q=>q.g===g);h+=`<label class="pend"><input type="checkbox" data-id="${x}"><b>${fmt(i,{day:"numeric",month:"short"})}</b><span>${gg.items[k][0]}</span></label>`});
+  h+=`</details>`;
+ }
+ $("#app").innerHTML=h;
+}
+
+function plan(){
+ let h="",last=0;
+ D.forEach(d=>{const i=key(d[0]),p=phase(i);
+  if(p!==last){last=p;h+=`<div class="grp">${PN[p]}</div>`}
+  const ids=allIds(i),dn=ids.filter(x=>S.c[x]).length;
+  const lab=d[1]==="m"?"Mock":d[1]==="r"?"Review":d[1]==="t"?d[2]:d[1]==="x"?d[2]:d[2];
+  h+=`<div class="dayrow ${i===real?"cur":""}" data-d="${i}"><b>${fmt(i,{day:"numeric",month:"short"})}</b><span>${d[1]==="m"?"Full mock "+(d[2]||""):d[1]==="r"?"Review: "+d[2]:d[2]}</span><em class="${dn===ids.length?"good":"mid"}">${dn}/${ids.length}</em></div>`});
+ $("#app").innerHTML=`<section class="card">${h}</section>`;
+}
+
+function syl(){
+ let h="";
+ for(const [sec,rows] of Object.entries(SYL)){
+  h+=`<section class="card"><h2 style="--c:var(--cobalt)">${sec}</h2><div style="overflow-x:auto"><table><tr><th>Topic</th>${COLS.map(c=>`<th>${c.slice(0,4)}.</th>`).join("")}</tr>`;
+  rows.forEach((r,ri)=>{h+=`<tr><td>${r[0]}<small style="display:block;color:var(--mute)">${r[1]==="H"?"High":"Med"} · ${r[2]}</small></td>`+COLS.map((c,ci)=>{const x=sec+ri+ci;return `<td><input type="checkbox" data-s="${x}" ${S.s[x]?"checked":""} aria-label="${c}"></td>`}).join("")+`</tr>`});
+  h+=`</table></div></section>`;
+ }
+ $("#app").innerHTML=`<div class="banner">Concept = theory + examples · Practice = 30+ Qs at 80%+ · Sectional = one timed set · Revised = second revision</div>`+h;
+}
+
+function mock(){
+ let h=`<div class="banner">Targets: M1 diagnostic, M2-M4 reach 36+, M5-M8 reach 40+, M9-M11 hold 42+. Real target: 44 net.</div><section class="card"><div style="overflow-x:auto"><table><tr><th>Mock</th><th>Score /60</th><th>Acc %</th><th>Weakest</th></tr>`;
+ MOCKS.forEach(([n,d],k)=>{const m=S.m[n]||{};const sc=m.sc,tg=MT[k+1];
+  h+=`<tr><td><b>${n}</b><small style="display:block;color:var(--mute)">${fmt(key(d),{day:"numeric",month:"short"})} · aim ${tg?tg+"+":"any"}</small></td><td><input type="number" step="0.25" min="-15" max="60" data-m="${n}" data-f="sc" value="${sc??""}" class="${sc==null?"":sc>=42?"good":sc>=tg?"mid":"low"}"></td><td><input type="number" min="0" max="100" data-m="${n}" data-f="ac" value="${m.ac??""}"></td><td><input type="text" data-m="${n}" data-f="wk" value="${m.wk??""}" placeholder="Quant"></td></tr>`});
+ h+=`</table></div></section>`;
+ const sc=MOCKS.map(([n])=>S.m[n]&&S.m[n].sc).filter(x=>x!=null&&x!=="");
+ if(sc.length){
+  const W=300,H=110,mx=60;const pts=sc.map((v,i)=>[10+i*(W-20)/Math.max(1,sc.length-1),H-8-(Math.max(0,v)/mx)*(H-16)]);
+  const ty=H-8-(44/mx)*(H-16);
+  h+=`<section class="card"><h2 style="--c:var(--cobalt)">Score trend<span>dashed = 44 target</span></h2><svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;padding:8px"><line x1="0" x2="${W}" y1="${ty}" y2="${ty}" stroke="var(--ok)" stroke-dasharray="4 4"/><polyline fill="none" stroke="var(--cobalt)" stroke-width="2.5" points="${pts.map(p=>p.join(",")).join(" ")}"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--cobalt)"/>`).join("")}</svg></section>`;
+ }
+ h+=`<div class="foot"><button class="btn" id="rs">Reset all progress</button></div>`;
+ $("#app").innerHTML=h;
+}
+
+function render(){head();({today,plan,syl,mock})[view]();document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===view))}
+document.addEventListener("change",e=>{const t=e.target;
+ if(t.dataset.id){S.c[t.dataset.id]=t.checked;save();const y=scrollY;render();scrollTo(0,y)}
+ else if(t.dataset.s){S.s[t.dataset.s]=t.checked;save()}
+ else if(t.dataset.m){const m=S.m[t.dataset.m]=S.m[t.dataset.m]||{};const f=t.dataset.f;m[f]=f==="wk"?t.value:(t.value===""?null:+t.value);save();const y=scrollY;render();scrollTo(0,y)}
+});
+document.addEventListener("click",e=>{const t=e.target;
+ if(t.closest("nav.tabs button")){view=t.closest("button").dataset.v;render();scrollTo(0,0)}
+ else if(t.id==="pv"||t.id==="nx"){const L=D.map(d=>key(d[0]));let k=L.findIndex(x=>x>=sel);if(L[k]!==sel&&t.id==="pv")k--;else if(t.id==="pv")k--;else if(L[k]===sel)k++;sel=L[Math.max(0,Math.min(L.length-1,k))];render()}
+ else if(t.id==="gt"){sel=real;render()}
+ else if(t.dataset.go){view=t.dataset.go;render()}
+ else if(t.closest(".dayrow")){sel=t.closest(".dayrow").dataset.d;view="today";render();scrollTo(0,0)}
+ else if(t.id==="rs"&&confirm("Delete all ticks and scores?")){localStorage.removeItem("snap26");location.reload()}
+});
+render();
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
